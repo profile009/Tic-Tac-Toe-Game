@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galactic Tic-Tac-Toe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .menu-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .side-menu {
+            position: absolute;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            padding: 20px;
+            z-index: 99;
+            overflow-y: auto;
+        }
+
+        .side-menu.open {
+            left: 0;
+        }
+
+        .menu-section {
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+        }
+
+        .menu-section h3 {
+            margin-bottom: 10px;
+            color: #4fc3f7;
+        }
+
+        .option-group {
+            margin-bottom: 15px;
+        }
+
+        .option-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            background-color: black;
+            border-radius: 4px;
+        }
+
+        button {
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 10px;
+            margin: 20px 0;
+            width: 300px;
+            height: 300px;
+        }
+
+        .cell {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .status {
+            margin: 20px 0;
+            font-size: 24px;
+            text-align: center;
+            min-height: 30px;
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .score-box {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .x-symbol {
+            color: #ff5252;
+        }
+
+        .o-symbol {
+            color: #4fc3f7;
+        }
+
+        /* For larger boards */
+        .board.size-4 {
+            width: 400px;
+            height: 400px;
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .board.size-5 {
+            width: 500px;
+            height: 500px;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .board.size-6 {
+            width: 600px;
+            height: 600px;
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .board.size-4 .cell,
+        .board.size-5 .cell,
+        .board.size-6 .cell {
+            font-size: 30px;
+        }
+
+        /* Game controls below board */
+        .game-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .game-controls button {
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        /* Winning animation */
+        @keyframes jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .winning-cell {
+            animation: jump 0.5s ease infinite;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        @media (max-width: 768px) {
+            .board {
+                width: 90vw;
+                height: 90vw;
+            }
+            
+            .board.size-4,
+            .board.size-5,
+            .board.size-6 {
+                width: 90vw;
+                height: 90vw;
+            }
+            
+            .side-menu {
+                width: 250px;
+                left: -250px;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <button class="menu-btn" id="menuBtn">☰</button>
+    
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-section">
+            <h3>Game Mode</h3>
+            <div class="option-group">
+                <label for="gameMode">Select Mode:</label>
+                <select id="gameMode">
+                    <option value="single">Single Player</option>
+                    <option value="multi">Multiplayer (Local)</option>
+                </select>
+            </div>
+            
+            <div class="option-group" id="difficultyGroup">
+                <label for="difficulty">Bot Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="menu-section">
+            <h3>Board Settings</h3>
+            <div class="option-group">
+                <label for="boardSize">Board Size:</label>
+                <select id="boardSize">
+                    <option value="3">3×3</option>
+                    <option value="4">4×4</option>
+                    <option value="5">5×5</option>
+                    <option value="6">6×6</option>
+                </select>
+            </div>
+            
+            <div class="option-group">
+                <label for="gameSpeed">Game Speed:</label>
+                <select id="gameSpeed">
+                    <option value="fast">Fast</option>
+                    <option value="slow">Slow</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="menu-section">
+            <h3>Customization</h3>
+            <div class="option-group">
+                <label for="xColor">X Color:</label>
+                <input type="color" id="xColor" value="#ff5252">
+            </div>
+            
+            <div class="option-group">
+                <label for="oColor">O Color:</label>
+                <input type="color" id="oColor" value="#4fc3f7">
+            </div>
+            
+            <div class="option-group">
+                <label for="theme">Board Theme:</label>
+                <select id="theme">
+                    <option value="default">Default (Galaxy)</option>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                    <option value="neon">Neon</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-container">
+        <div class="score-display">
+            <div class="score-box">
+                <span class="x-symbol">X</span>: <span id="xScore">0</span>
+            </div>
+            <div class="score-box">
+                <span class="o-symbol">O</span>: <span id="oScore">0</span>
+            </div>
+        </div>
+        
+        <div class="status" id="status">X's turn</div>
+        
+        <div class="board" id="board"></div>
+        
+        <!-- Game controls moved below the board -->
+        <div class="game-controls">
+            <button id="newGameBtn">New Game</button>
+            <button id="resetScoreBtn">Reset Scores</button>
+        </div>
+        <button><a target="_blank" href="https://www.webintoapp.com/store/714760">Get App</a></button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const menuBtn = document.getElementById('menuBtn');
+            const sideMenu = document.getElementById('sideMenu');
+            const board = document.getElementById('board');
+            const status = document.getElementById('status');
+            const xScoreEl = document.getElementById('xScore');
+            const oScoreEl = document.getElementById('oScore');
+            const gameMode = document.getElementById('gameMode');
+            const difficulty = document.getElementById('difficulty');
+            const boardSize = document.getElementById('boardSize');
+            const gameSpeed = document.getElementById('gameSpeed');
+            const xColor = document.getElementById('xColor');
+            const oColor = document.getElementById('oColor');
+            const theme = document.getElementById('theme');
+            const newGameBtn = document.getElementById('newGameBtn');
+            const resetScoreBtn = document.getElementById('resetScoreBtn');
+            const difficultyGroup = document.getElementById('difficultyGroup');
+            const starsContainer = document.getElementById('stars');
+
+            // Game state
+            let currentPlayer = 'X';
+            let gameBoard = [];
+            let gameActive = true;
+            let scores = { X: 0, O: 0 };
+            let boardDimension = 3;
+            let isSinglePlayer = true;
+            let botDifficulty = 'medium';
+            let animationSpeed = 'fast';
+            let winningCells = [];
+
+            // Create stars for background
+            function createStars() {
+                starsContainer.innerHTML = '';
+                const starCount = 200;
+                
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.classList.add('star');
+                    
+                    // Random properties
+                    const size = Math.random() * 3;
+                    const posX = Math.random() * 100;
+                    const posY = Math.random() * 100;
+                    const duration = 2 + Math.random() * 3;
+                    const delay = Math.random() * 5;
+                    
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    star.style.left = `${posX}%`;
+                    star.style.top = `${posY}%`;
+                    star.style.setProperty('--duration', `${duration}s`);
+                    star.style.animationDelay = `${delay}s`;
+                    
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            // Initialize game
+            function initGame() {
+                // Clear any winning animations
+                clearWinningAnimation();
+                
+                boardDimension = parseInt(boardSize.value);
+                isSinglePlayer = gameMode.value === 'single';
+                botDifficulty = difficulty.value;
+                animationSpeed = gameSpeed.value;
+                
+                // Show/hide difficulty options
+                difficultyGroup.style.display = isSinglePlayer ? 'block' : 'none';
+                
+                // Create board
+                board.className = `board size-${boardDimension}`;
+                board.innerHTML = '';
+                gameBoard = Array(boardDimension * boardDimension).fill(null);
+                
+                for (let i = 0; i < boardDimension * boardDimension; i++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.setAttribute('data-index', i);
+                    cell.addEventListener('click', handleCellClick);
+                    board.appendChild(cell);
+                }
+                
+                currentPlayer = 'X';
+                gameActive = true;
+                status.textContent = `${currentPlayer}'s turn`;
+                
+                // Apply custom colors
+                document.documentElement.style.setProperty('--x-color', xColor.value);
+                document.documentElement.style.setProperty('--o-color', oColor.value);
+                
+                // Apply theme
+                applyTheme();
+            }
+
+            // Clear winning animation
+            function clearWinningAnimation() {
+                winningCells.forEach(index => {
+                    const cell = board.children[index];
+                    if (cell) {
+                        cell.classList.remove('winning-cell');
+                    }
+                });
+                winningCells = [];
+            }
+
+            // Handle cell click
+            function handleCellClick(e) {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                
+                if (!gameActive || gameBoard[index] !== null) return;
+                
+                // Make move
+                makeMove(index, currentPlayer);
+                
+                // Check for win or draw
+                if (checkWin(currentPlayer)) {
+                    endGame(`${currentPlayer} wins!`);
+                    highlightWinningCells(currentPlayer);
+                    updateScore(currentPlayer);
+                    return;
+                } else if (checkDraw()) {
+                    endGame("It's a draw!");
+                    return;
+                }
+                
+                // Switch player
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X'; // এই লাইনটি সংশোধন করা হয়েছে
+                status.textContent = `${currentPlayer}'s turn`;
+                
+                // If single player and bot's turn
+                if (isSinglePlayer && currentPlayer === 'O' && gameActive) {
+                    setTimeout(() => {
+                        const botMove = getBotMove();
+                        makeMove(botMove, 'O');
+                        
+                        if (checkWin('O')) {
+                            endGame('O wins!');
+                            highlightWinningCells('O');
+                            updateScore('O');
+                        } else if (checkDraw()) {
+                            endGame("It's a draw!");
+                        } else {
+                            currentPlayer = 'X';
+                            status.textContent = `${currentPlayer}'s turn`;
+                        }
+                    }, animationSpeed === 'fast' ? 500 : 1000);
+                }
+            }
+
+            // Highlight winning cells
+            function highlightWinningCells(player) {
+                clearWinningAnimation();
+                
+                // Check rows
+                for (let i = 0; i < boardDimension; i++) {
+                    let win = true;
+                    for (let j = 0; j < boardDimension; j++) {
+                        if (gameBoard[i * boardDimension + j] !== player) {
+                            win = false;
+                            break;
+                        }
+                    }
+                    if (win) {
+                        for (let j = 0; j < boardDimension; j++) {
+                            winningCells.push(i * boardDimension + j);
+                        }
+                        break;
+                    }
+                }
+                
+                // Check columns
+                for (let j = 0; j < boardDimension; j++) {
+                    let win = true;
+                    for (let i = 0; i < boardDimension; i++) {
+                        if (gameBoard[i * boardDimension + j] !== player) {
+                            win = false;
+                            break;
+                        }
+                    }
+                    if (win) {
+                        for (let i = 0; i < boardDimension; i++) {
+                            winningCells.push(i * boardDimension + j);
+                        }
+                        break;
+                    }
+                }
+                
+                // Check diagonals
+                let diag1Win = true;
+                let diag2Win = true;
+                for (let i = 0; i < boardDimension; i++) {
+                    if (gameBoard[i * boardDimension + i] !== player) {
+                        diag1Win = false;
+                    }
+                    if (gameBoard[i * boardDimension + (boardDimension - 1 - i)] !== player) {
+                        diag2Win = false;
+                    }
+                }
+                
+                if (diag1Win) {
+                    for (let i = 0; i < boardDimension; i++) {
+                        winningCells.push(i * boardDimension + i);
+                    }
+                } else if (diag2Win) {
+                    for (let i = 0; i < boardDimension; i++) {
+                        winningCells.push(i * boardDimension + (boardDimension - 1 - i));
+                    }
+                }
+                
+                // Apply animation to winning cells
+                winningCells.forEach(index => {
+                    const cell = board.children[index];
+                    cell.classList.add('winning-cell');
+                });
+            }
+
+            // Make a move
+            function makeMove(index, player) {
+                gameBoard[index] = player;
+                const cell = board.children[index];
+                cell.textContent = player;
+                cell.classList.add(player === 'X' ? 'x-symbol' : 'o-symbol');
+                
+                // Apply animation
+                cell.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    cell.style.transform = 'scale(1)';
+                }, 10);
+            }
+
+            // Check for win
+            function checkWin(player) {
+                // Check rows
+                for (let i = 0; i < boardDimension; i++) {
+                    let win = true;
+                    for (let j = 0; j < boardDimension; j++) {
+                        if (gameBoard[i * boardDimension + j] !== player) {
+                            win = false;
+                            break;
+                        }
+                    }
+                    if (win) return true;
+                }
+                
+                // Check columns
+                for (let j = 0; j < boardDimension; j++) {
+                    let win = true;
+                    for (let i = 0; i < boardDimension; i++) {
+                        if (gameBoard[i * boardDimension + j] !== player) {
+                            win = false;
+                            break;
+                        }
+                    }
+                    if (win) return true;
+                }
+                
+                // Check diagonals
+                let diag1Win = true;
+                let diag2Win = true;
+                for (let i = 0; i < boardDimension; i++) {
+                    if (gameBoard[i * boardDimension + i] !== player) {
+                        diag1Win = false;
+                    }
+                    if (gameBoard[i * boardDimension + (boardDimension - 1 - i)] !== player) {
+                        diag2Win = false;
+                    }
+                }
+                
+                return diag1Win || diag2Win;
+            }
+
+            // Check for draw
+            function checkDraw() {
+                return !gameBoard.includes(null);
+            }
+
+            // End game
+            function endGame(message) {
+                gameActive = false;
+                status.textContent = message;
+            }
+
+            // Update score
+            function updateScore(winner) {
+                scores[winner]++;
+                xScoreEl.textContent = scores.X;
+                oScoreEl.textContent = scores.O;
+            }
+
+            // Get bot move
+            function getBotMove() {
+                // Easy mode - random move
+                if (botDifficulty === 'easy') {
+                    return getRandomMove();
+                }
+                
+                // Medium mode - sometimes random, sometimes smart
+                if (botDifficulty === 'medium' && Math.random() < 0.5) {
+                    return getRandomMove();
+                }
+                
+                // Hard mode and medium mode when not random
+                // Try to win if possible
+                for (let i = 0; i < gameBoard.length; i++) {
+                    if (gameBoard[i] === null) {
+                        gameBoard[i] = 'O';
+                        if (checkWin('O')) {
+                            gameBoard[i] = null;
+                            return i;
+                        }
+                        gameBoard[i] = null;
+                    }
+                }
+                
+                // Block opponent's win
+                for (let i = 0; i < gameBoard.length; i++) {
+                    if (gameBoard[i] === null) {
+                        gameBoard[i] = 'X';
+                        if (checkWin('X')) {
+                            gameBoard[i] = null;
+                            return i;
+                        }
+                        gameBoard[i] = null;
+                    }
+                }
+                
+                // If center is available, take it (for odd-sized boards)
+                if (boardDimension % 2 === 1) {
+                    const center = Math.floor(boardDimension * boardDimension / 2);
+                    if (gameBoard[center] === null) {
+                        return center;
+                    }
+                }
+                
+                // Take a corner if available
+                const corners = [];
+                if (boardDimension === 3) {
+                    corners.push(0, 2, 6, 8);
+                } else {
+                    // For larger boards, consider all edge positions as potential good moves
+                    for (let i = 0; i < boardDimension; i++) {
+                        // Top and bottom rows
+                        corners.push(i);
+                        corners.push((boardDimension - 1) * boardDimension + i);
+                    }
+                    for (let i = 1; i < boardDimension - 1; i++) {
+                        // Left and right columns
+                        corners.push(i * boardDimension);
+                        corners.push(i * boardDimension + boardDimension - 1);
+                    }
+                }
+                
+                const availableCorners = corners.filter(index => gameBoard[index] === null);
+                if (availableCorners.length > 0) {
+                    return availableCorners[Math.floor(Math.random() * availableCorners.length)];
+                }
+                
+                // Otherwise, random move
+                return getRandomMove();
+            }
+
+            // Get random available move
+            function getRandomMove() {
+                const availableMoves = [];
+                for (let i = 0; i < gameBoard.length; i++) {
+                    if (gameBoard[i] === null) {
+                        availableMoves.push(i);
+                    }
+                }
+                return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+            }
+
+            // Apply theme
+            function applyTheme() {
+                const themeValue = theme.value;
+                const root = document.documentElement;
+                
+                switch (themeValue) {
+                    case 'dark':
+                        root.style.setProperty('--x-color', '#ff5252');
+                        root.style.setProperty('--o-color', '#4fc3f7');
+                        document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+                        break;
+                    case 'light':
+                        root.style.setProperty('--x-color', '#e53935');
+                        root.style.setProperty('--o-color', '#1e88e5');
+                        document.body.style.background = 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)';
+                        break;
+                    case 'neon':
+                        root.style.setProperty('--x-color', '#ff00ff');
+                        root.style.setProperty('--o-color', '#00ffff');
+                        document.body.style.background = 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)';
+                        break;
+                    default: // galaxy
+                        root.style.setProperty('--x-color', xColor.value);
+                        root.style.setProperty('--o-color', oColor.value);
+                        document.body.style.background = 'url(https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80) no-repeat center center fixed';
+                        document.body.style.backgroundSize = 'cover';
+                        break;
+                }
+            }
+
+            // Event listeners
+            menuBtn.addEventListener('click', function() {
+                sideMenu.classList.toggle('open');
+            });
+
+            gameMode.addEventListener('change', function() {
+                isSinglePlayer = this.value === 'single';
+                difficultyGroup.style.display = isSinglePlayer ? 'block' : 'none';
+                initGame();
+            });
+
+            difficulty.addEventListener('change', function() {
+                botDifficulty = this.value;
+            });
+
+            boardSize.addEventListener('change', initGame);
+            gameSpeed.addEventListener('change', function() {
+                animationSpeed = this.value;
+            });
+
+            xColor.addEventListener('input', function() {
+                document.documentElement.style.setProperty('--x-color', this.value);
+            });
+
+            oColor.addEventListener('input', function() {
+                document.documentElement.style.setProperty('--o-color', this.value);
+            });
+
+            theme.addEventListener('change', applyTheme);
+
+            newGameBtn.addEventListener('click', initGame);
+
+            resetScoreBtn.addEventListener('click', function() {
+                scores = { X: 0, O: 0 };
+                xScoreEl.textContent = '0';
+                oScoreEl.textContent = '0';
+                initGame();
+            });
+
+            // Initialize
+            createStars();
+            initGame();
+        });
+    </script>
+</body>
+</html>
